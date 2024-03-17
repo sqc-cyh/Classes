@@ -55,8 +55,9 @@ int main(){
 	    }
     map<string,int> BookName;
 	for (const auto& entry : SearchEngine) {
-		ofstream ofs;
-		string NewTxt=str;
+		ofstream ofs; 
+		string NewTxt="./data/";
+		NewTxt+=str;
 		NewTxt+="_data.txt";
 	    ofs.open(NewTxt,ios::app);
 	    string w=entry.first;
