@@ -20,7 +20,7 @@ int main(){
 	map<string,int> words;
 	string x;
 	cin>>x;
-	x=Word_Stem(x);/*词根和大小写转换*/
+	x=Word_Stem(x);/*Root and case conversion*/
 	string name="./docspider/namedata.txt";
 	ifstream file_name(name);
 	if (!file_name.is_open()){
@@ -47,10 +47,10 @@ int main(){
 	    	istringstream iss(str);
 	    	string word;
 	    	while(getline(iss,word,' ')){
-	    		int flag=1;/*标注是否为停用词*/
+	    		int flag=1;/*Stop word ?*/
 	    		word=Word_Stem(word);
 	    		int size=word.size();
-	    		if(word[size-1]>'z'||word[size-1]<'a') word[size-1]=0;//处理末尾符号（处理两位） 
+	    		if(word[size-1]>'z'||word[size-1]<'a') word[size-1]=0;//Handle last symbol (handle two bits) 
 	    		if(word[size-2]>'z'||word[size-2]<'a') word[size-2]=0;
 	    		ifstream stopword("StopWord.txt");
 	    		string tmpl;

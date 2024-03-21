@@ -115,7 +115,7 @@ int main(){
 		    for(int i=0;i<txt_name.size();i++){
 		    	if(Frequency[i][w]>=boundary) {
 		    		sta++;
-		    	    cout<<sta<<"."<<"Title:"<<"¡°"<<txt_name[i]<<"¡±,Number of occurrences:"<<Frequency[i][w]<<endl<<"The first appearance is in the ";
+		    	    cout<<sta<<"."<<"Title:"<<"\""<<txt_name[i]<<"\" ,Number of occurrences:"<<Frequency[i][w]<<endl<<"The first appearance is in the ";
 					for (const auto& subEntry : entry.second) {
 						if(subEntry.first==i){
 						    cout<<subEntry.second<<" line"<<endl;
@@ -174,7 +174,7 @@ int main(){
 				int fre=atoi(&temp[0]);
 				if(fre>boundary) {
 					sta++;
-				    cout<<sta<<"."<<"Title:"<<"¡°"<<tmpn<<"¡±,Number of occurrences:"<<temp<<""<<endl;
+				    cout<<sta<<"."<<"Title:"<<"\""<<tmpn<<"\" ,Number of occurrences:"<<temp<<""<<endl;
 					cout<<"The first appearance is in:";
 				    string line;
 				    getline(check2_name,line,' ');
