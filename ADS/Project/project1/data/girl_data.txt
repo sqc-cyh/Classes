@@ -1,0 +1,51 @@
+girl
+All's Well That Ends Well 1
+757 
+As You Like It 2
+740 2630 
+Cymbeline 3
+861 3265 4214 
+Love's Labours Lost 5
+405 608 1847 2370 2700 
+Measure for Measure 1
+1199 
+The Merry Wives of Windsor 2
+630 3757 
+The Merchant of Venice 3
+1066 1337 1850 
+Pericles, Prince of Tyre 2
+2880 3009 
+Taming of the Shrew 5
+467 570 1118 1828 2000 
+The Tempest 1
+202 
+Troilus and Cressida 4
+2689 4425 4458 4463 
+Two Gentlemen of Verona 5
+1388 1442 2063 2917 3140 
+Winter's Tale 3
+182 1713 2664 
+Henry VI, part 1 3
+1141 3289 3359 
+Henry VIII 2
+3520 3536 
+Richard II 2
+2176 2184 
+Richard III 3
+1634 1648 1709 
+Antony and Cleopatra 4
+3690 4233 4264 4703 
+Hamlet 1
+745 
+Julius Caesar 1
+271 
+Macbeth 1
+1744 
+Othello 2
+219 4783 
+Romeo and Juliet 7
+509 645 830 2776 2811 2844 3231 
+Titus Andronicus 6
+1729 1750 1859 1887 1898 3072 
+The Rape of Lucrece 2
+1502 1509 

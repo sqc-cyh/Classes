@@ -1,0 +1,57 @@
+pictur
+As You Like It 1
+1619 
+The Comedy of Errors 1
+1631 
+Cymbeline 5
+1194 3406 4025 4327 4360 
+Love's Labours Lost 2
+1537 2665 
+The Merry Wives of Windsor 1
+1226 
+The Merchant of Venice 3
+313 1234 1272 
+Much Ado About Nothing 1
+1454 
+Pericles, Prince of Tyre 2
+1023 2138 
+Taming of the Shrew 2
+67 242 
+The Tempest 1
+1968 
+Troilus and Cressida 2
+2221 3806 
+Twelfth Night 4
+323 728 967 2397 
+Two Gentlemen of Verona 7
+1248 2448 2449 2658 2694 2698 2785 
+Winter's Tale 3
+3099 3541 3990 
+Henry IV, part 2 1
+2934 
+Henry VI, part 1 2
+1051 2831 
+Antony and Cleopatra 1
+1207 
+Coriolanus 1
+472 
+Hamlet 3
+1885 3206 3838 
+King Lear 1
+1408 
+Macbeth 1
+876 
+Othello 1
+1100 
+Timon of Athens 2
+52 325 
+Titus Andronicus 2
+1461 2148 
+The Sonnets 5
+353 681 698 702 706 
+A Lover's Complaint 1
+156 
+The Rape of Lucrece 3
+670 1798 1804 
+Venus and Adonis 2
+266 793 
