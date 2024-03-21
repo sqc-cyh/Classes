@@ -54,6 +54,7 @@ int main(){
 	Exist_file+=".txt";
 	ifstream check_name(Exist_file);
 	if (!check_name.is_open()){/*If there is no corresponding data locally, start querying the database*/
+		int ifsee=0; 
 		for(int i=0;i<txt_name.size();i++){
 		    string now_txt;
 		    now_txt="./docspider/";
@@ -73,6 +74,7 @@ int main(){
 	    	    if(index!=string::npos){
 	    		    SearchEngine[str].push_back(make_pair(i,line));/*push into the data structure of the search results*/
 	    		    Frequency[i][str]++;/*Frequency plus one*/
+	    		    ifsee=1;
 			    }
 		    }
 	    }
@@ -122,6 +124,7 @@ int main(){
 			}
 			BookName.clear();
 	    }
+	    if(ifsee==0) cout<<"The word does not appear"<<endl; 
 	}
 	else{/*Existing local data, read local data directly*/
 	    priority_queue<int> q;/*Use the small root heap to find the k-th largest element, k=rate*total number of articles*/
