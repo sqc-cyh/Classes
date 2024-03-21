@@ -64,7 +64,7 @@ string Word_Stem(string x){
         Read the data file for data processing.
     }
 ```
-**Query method** : First, we read the name of the document locally, then open the corresponding document, demarcate each string with a space, and store the read words in the map and record it.The document index number and the position of the word in the document (number of lines). If the word Repeat, the number of repeated words in the word list is increased by one, and
+**Query method(Words that have not been searched)** : First, we read the name of the document locally, then open the corresponding document, demarcate each string with a space, and store the read words in the map and record it.The document index number and the position of the word in the document (number of lines). If the word Repeat, the number of repeated words in the word list is increased by one, and
 The result of the final read is stored in the map.
 ```C++
 for(int i=0;i<txt_name.size();i++){
@@ -136,3 +136,73 @@ for(int i=0;i<txt_name.size();i++){
 			BookName.clear();
 	    }
 ```
+**Query method(Words that have been searched)** :Reads the txt file where the word is stored locally. Since the storage format of the data file is fixed, the first line of each book block stores the title of the book and the frequency in the book, and the next few lines store the number of lines that appear, so we only need to iterate through each line of the txt file, extract the book title and its corresponding frequency, and output the book title and the number of lines where the word appears for the first time in the book.
+```C++
+priority_queue<int> q;/*Use the small root heap to find the k-th largest element, k=rate*total number of articles*/
+		int total=0;	
+		string tmpn;
+		getline(check_name,tmpn);
+		while(getline(check_name,tmpn)){
+			int k=atoi(&tmpn[0]);
+			if(k==0) {
+				total++;
+				int sum,i;
+				sum=0;
+				i=tmpn.size()-1;
+				string temp=tmpn;
+				while(i>0){
+					if(tmpn[i]==' ') break;
+					i--;
+				}
+				temp=temp.substr(i+1, temp.length()-i);
+				int fre=atoi(&temp[0]);
+				q.push(fre);
+			}
+		} 
+		for(int i=0;i<rate*total;i++){
+			q.pop();
+		}
+		int boundary=q.top();
+		ifstream check2_name(Exist_file);
+		getline(check2_name,tmpn);
+		while(getline(check2_name,tmpn)){/*to output*/
+			int k=atoi(&tmpn[0]);
+			if(k==0) {
+				total++;
+				int sum,i;
+				sum=0;
+				i=tmpn.size()-1;
+				string temp=tmpn;
+				while(i>0){
+					if(tmpn[i]==' ') break;
+					i--;
+				}
+				temp=temp.substr(i+1, temp.length()-i);
+				int fre=atoi(&temp[0]);
+				if(fre>boundary) {
+				    cout<<tmpn<<" 第一次出现的位置在第";
+				    string line;
+				    getline(check2_name,line,' ');
+				    cout<<line<<"行"<<endl;	
+				}
+			}
+		}
+```
+## Chapter4 Analysis and Comments
+### 1.Complexity analysis
+**1)** For words that have not been searched:  
+* **Time Complexity:** $O(M*L+\Phi+K)=O(M*L)$   
+**K** is the sum of the number of times the file is read and the number of articles, **M** is the number of articles,**L** is the number of lines in the article,$\Phi$ is the sum of the time it takes to build the root heap and the number of outputs.   
+* **Space Complexity:** $O(M*L+\Phi)$  
+**M** is the number of articles,**L** is the number of lines in the article,$\Phi$ is the sum of the space it takes to build the root heap and the number of outputs.  
+
+ **2)** For words that have been searched:  
+* **Time Complexity:** $O(N)$  
+**N** is the number of lines in the **word_data.txt**,and the $O(N)$ here is much smaller than the $O(M*L)$ above.Because all the desired results are already in the local text, it is only necessary to iterate through each line of the text and extract the data.
+* **Space Complexity:** $O(\Phi)$  
+$\Phi$ is the sum of the space it takes to build the root heap and the number of outputs.  Because all the desired results are already in the local text, it is only necessary to create a small root heap to filter the text of the output.
+
+### 2.Program Highlights
+It can be seen that when a word is searched for obsolete, the time and space cost of searching for the word again is greatly reduced, and in the face of massive data, the search speed will be faster and faster after the user's continuous search.
+
+
