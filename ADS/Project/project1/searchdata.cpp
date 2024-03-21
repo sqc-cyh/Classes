@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <queue>
 #define TRUE 1
 #define FALSE 0
 using namespace std;
@@ -29,8 +30,16 @@ int main(){
     while(getline(file_name,str)){
         txt_name.push_back(str);
 	}
-	cin>>str;
-        str=Word_Stem(str);
+	double rate;
+	cout<<"Please input your word and rate:"<<endl;
+	cin>>str>>rate;
+	str=Word_Stem(str);
+	string Exist_file="./data/";
+	Exist_file+=str;
+	Exist_file+="_data";
+	Exist_file+=".txt";
+	ifstream check_name(Exist_file);
+	if (!check_name.is_open()){
 		for(int i=0;i<txt_name.size();i++){
 		    string now_txt;
 		    now_txt="./docspider/";
@@ -53,28 +62,105 @@ int main(){
 			    }
 		    }
 	    }
-    map<string,int> BookName;
-	for (const auto& entry : SearchEngine) {
-		ofstream ofs; 
-		string NewTxt="./data/";
-		NewTxt+=str;
-		NewTxt+="_data.txt";
-	    ofs.open(NewTxt,ios::app);
-	    string w=entry.first;
-	    ofs<<entry.first;
-	    for (const auto& subEntry : entry.second) {
-	    	string book=txt_name[subEntry.first];
-	    	if(BookName[book]==0){
-	    		ofs<<endl;
-	    		BookName[book]=1;
-	    		ofs<<book<<" "<<Frequency[subEntry.first][w]<<endl;
+    	map<string,int> BookName;
+    
+		for (const auto& entry : SearchEngine) {
+			ofstream ofs; 
+			string NewTxt="./data/";
+			NewTxt+=str;
+			NewTxt+="_data.txt";
+		    ofs.open(NewTxt,ios::out);
+		    string w=entry.first;
+		    ofs<<entry.first;
+		    for (const auto& subEntry : entry.second) {
+		    	string book=txt_name[subEntry.first];
+		    	if(BookName[book]==0){
+		    		ofs<<endl;
+		    		BookName[book]=1;
+		    		ofs<<book<<" "<<Frequency[subEntry.first][w]<<endl;
+				}
+	            ofs<<subEntry.second<<" ";
+		    }
+		    ofs<<endl;
+			BookName.clear();
+	        ofs.close();
+    	}
+    	priority_queue<int> q;/*利用小根堆找第k大的元素，k=rate*总文章数*/
+    	for(int i=0;i<txt_name.size();i++){
+    		q.push(Frequency[i][str]);
+		}
+		for(int i=0;i<rate*txt_name.size();i++){
+			q.pop();
+		}
+		int boundary=q.top();
+	    for (const auto& entry : SearchEngine) {
+		    string w=entry.first;
+		    cout<<entry.first<<endl;
+		    for(int i=0;i<txt_name.size();i++){
+		    	if(Frequency[i][w]>=boundary) {
+		    	    cout<<txt_name[i]<<" "<<Frequency[i][w]<<" 第一次出现的位置在第";
+					for (const auto& subEntry : entry.second) {
+						if(subEntry.first==i){
+						    cout<<subEntry.second<<"行"<<endl;
+	                        break;	
+						} 
+		            }	
+				}
 			}
-            ofs<<subEntry.second<<" ";
+			BookName.clear();
 	    }
-	    ofs<<endl;
-		BookName.clear();
-        ofs.close();
-    }
+	}
+	else{
+	    priority_queue<int> q;/*利用小根堆找第k大的元素，k=rate*总文章数*/
+		int total=0;	
+		string tmpn;
+		getline(check_name,tmpn);
+		while(getline(check_name,tmpn)){
+			int k=atoi(&tmpn[0]);
+			if(k==0) {
+				total++;
+				int sum,i;
+				sum=0;
+				i=tmpn.size()-1;
+				string temp=tmpn;
+				while(i>0){
+					if(tmpn[i]==' ') break;
+					i--;
+				}
+				temp=temp.substr(i+1, temp.length()-i);
+				int fre=atoi(&temp[0]);
+				q.push(fre);
+			}
+		}//想直接通过读本地文件获取数据 
+		for(int i=0;i<rate*total;i++){
+			q.pop();
+		}
+		int boundary=q.top();
+		ifstream check2_name(Exist_file);
+		getline(check2_name,tmpn);
+		while(getline(check2_name,tmpn)){
+			int k=atoi(&tmpn[0]);
+			if(k==0) {
+				total++;
+				int sum,i;
+				sum=0;
+				i=tmpn.size()-1;
+				string temp=tmpn;
+				while(i>0){
+					if(tmpn[i]==' ') break;
+					i--;
+				}
+				temp=temp.substr(i+1, temp.length()-i);
+				int fre=atoi(&temp[0]);
+				if(fre>boundary) {
+				    cout<<tmpn<<" 第一次出现的位置在第";
+				    string line;
+				    getline(check2_name,line,' ');
+				    cout<<line<<"行"<<endl;	
+				}
+			}
+		}
+	}
 	return 0; 
 }
 string Word_Stem(string x){
