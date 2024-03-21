@@ -17,29 +17,43 @@ int stem(char *p, int index, int position);
 using namespace std;
 string Word_Stem(string x);
 int main(){
-	vector<string> txt_name;
-	map<string,vector<pair<int,int>>> SearchEngine;
-	map<string,int> Frequency[50];
-	string name="./docspider/namedata.txt";
+	vector<string> txt_name;/*used to store all the text in the database*/
+	map<string,vector<pair<int,int>>> SearchEngine;/*used to store inverted indexes, in which the two ints in the pair store the book target number and the corresponding number of rows, respectively*/
+	map<string,int> Frequency[50];/*used to store the frequency of lookup words in each book.*/
+	string name="./docspider/namedata.txt";//*Read the local database file to get the individual article titles*/
 	ifstream file_name(name);
 	if (!file_name.is_open()){
 		cout << "open file error!" << endl;
 		return 0;
 	}
-	string str;
-    while(getline(file_name,str)){
-        txt_name.push_back(str);
+	string str_read;
+    while(getline(file_name,str_read)){
+        txt_name.push_back(str_read);
 	}
+	/*Enter and determine whether it is stopword, and perform root processing at the same time*/
+	string str; 
 	double rate;
 	cout<<"Please input your word and rate:"<<endl;
 	cin>>str>>rate;
+	string tmpl;
+	ifstream stopword("StopWord.txt");
+	int flag=1;
+	while(getline(stopword,tmpl)){
+	    if(str.compare(tmpl)==0) flag=0;
+	}
+	if(flag==0){
+		cout<<"This is a stop word"<<endl;
+		return 0;
+	}
 	str=Word_Stem(str);
+	
+	/*Check whether the local data has been queried*/
 	string Exist_file="./data/";
 	Exist_file+=str;
 	Exist_file+="_data";
 	Exist_file+=".txt";
 	ifstream check_name(Exist_file);
-	if (!check_name.is_open()){
+	if (!check_name.is_open()){/*If there is no corresponding data locally, start querying the database*/
 		for(int i=0;i<txt_name.size();i++){
 		    string now_txt;
 		    now_txt="./docspider/";
@@ -52,19 +66,18 @@ int main(){
 	        }
 	        string tmpn;
 	        int line=0;
-	        while(getline(file_name,tmpn)){
+	        while(getline(file_name,tmpn)){/*Read by line, chunk by string*/
 	        	line++;
-	        	tmpn=Word_Stem(tmpn);
+	        	tmpn=Word_Stem(tmpn);/*Root processing for each word*/
 	        	int index=tmpn.find(str);
 	    	    if(index!=string::npos){
-	    		    SearchEngine[str].push_back(make_pair(i,line));
-	    		    Frequency[i][str]++;
+	    		    SearchEngine[str].push_back(make_pair(i,line));/*push into the data structure of the search results*/
+	    		    Frequency[i][str]++;/*Frequency plus one*/
 			    }
 		    }
 	    }
     	map<string,int> BookName;
-    
-		for (const auto& entry : SearchEngine) {
+		for (const auto& entry : SearchEngine) {/*Write to local txt file*/
 			ofstream ofs; 
 			string NewTxt="./data/";
 			NewTxt+=str;
@@ -85,7 +98,7 @@ int main(){
 			BookName.clear();
 	        ofs.close();
     	}
-    	priority_queue<int> q;/*利用小根堆找第k大的元素，k=rate*总文章数*/
+    	priority_queue<int> q;//*Use the small root heap to find the k-th largest element, k=rate*total number of articles*/
     	for(int i=0;i<txt_name.size();i++){
     		q.push(Frequency[i][str]);
 		}
@@ -93,7 +106,7 @@ int main(){
 			q.pop();
 		}
 		int boundary=q.top();
-	    for (const auto& entry : SearchEngine) {
+	    for (const auto& entry : SearchEngine) {/*Output at terminal*/
 		    string w=entry.first;
 		    cout<<entry.first<<endl;
 		    for(int i=0;i<txt_name.size();i++){
@@ -110,8 +123,8 @@ int main(){
 			BookName.clear();
 	    }
 	}
-	else{
-	    priority_queue<int> q;/*利用小根堆找第k大的元素，k=rate*总文章数*/
+	else{/*Existing local data, read local data directly*/
+	    priority_queue<int> q;/*Use the small root heap to find the k-th largest element, k=rate*total number of articles*/
 		int total=0;	
 		string tmpn;
 		getline(check_name,tmpn);
@@ -131,14 +144,14 @@ int main(){
 				int fre=atoi(&temp[0]);
 				q.push(fre);
 			}
-		}//想直接通过读本地文件获取数据 
+		} 
 		for(int i=0;i<rate*total;i++){
 			q.pop();
 		}
 		int boundary=q.top();
 		ifstream check2_name(Exist_file);
 		getline(check2_name,tmpn);
-		while(getline(check2_name,tmpn)){
+		while(getline(check2_name,tmpn)){/*to output*/
 			int k=atoi(&tmpn[0]);
 			if(k==0) {
 				total++;
