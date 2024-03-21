@@ -124,10 +124,10 @@ for(int i=0;i<txt_name.size();i++){
 		    cout<<entry.first<<endl;
 		    for(int i=0;i<txt_name.size();i++){
 		    	if(Frequency[i][w]>=boundary) {
-		    	    cout<<txt_name[i]<<" "<<Frequency[i][w]<<" 第一次出现的位置在第";
+		    	    cout<<txt_name[i]<<" "<<Frequency[i][w]<<" The first appearance is in the ";
 					for (const auto& subEntry : entry.second) {
 						if(subEntry.first==i){
-						    cout<<subEntry.second<<"行"<<endl;
+						    cout<<subEntry.second<<" line"<<endl;
 	                        break;	
 						} 
 		            }	
@@ -180,10 +180,10 @@ priority_queue<int> q;/*Use the small root heap to find the k-th largest element
 				temp=temp.substr(i+1, temp.length()-i);
 				int fre=atoi(&temp[0]);
 				if(fre>boundary) {
-				    cout<<tmpn<<" 第一次出现的位置在第";
+				    cout<<tmpn<<" The first appearance is in the ";
 				    string line;
 				    getline(check2_name,line,' ');
-				    cout<<line<<"行"<<endl;	
+				    cout<<line<<" line"<<endl;	
 				}
 			}
 		}
