@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <queue>
 #define TRUE 1
 #define FALSE 0
 using namespace std;
@@ -16,80 +17,173 @@ int stem(char *p, int index, int position);
 using namespace std;
 string Word_Stem(string x);
 int main(){
-	vector<string> txt_name;
-	map<string,int> words;
-	string x;
-	cin>>x;
-	x=Word_Stem(x);/*Root and case conversion*/
-	string name="./docspider/namedata.txt";
+	vector<string> txt_name;/*used to store all the text in the database*/
+	map<string,vector<pair<int,int>>> SearchEngine;/*used to store inverted indexes, in which the two ints in the pair store the book target number and the corresponding number of rows, respectively*/
+	map<string,int> Frequency[50];/*used to store the frequency of lookup words in each book.*/
+	string name="../docspider/namedata.txt";//*Read the local database file to get the individual article titles*/
 	ifstream file_name(name);
 	if (!file_name.is_open()){
 		cout << "open file error!" << endl;
 		return 0;
 	}
-	string str;
-    while(getline(file_name,str)){
-        txt_name.push_back(str);
+	string str_read;
+    while(getline(file_name,str_read)){
+        txt_name.push_back(str_read);
 	}
-	for(int i=0;i<txt_name.size();i++){
-		string now_txt;
-		now_txt="./docspider/";
-		now_txt+=txt_name[i];
-		now_txt+=".txt";
-		ifstream file_name(now_txt);
-		if (!file_name.is_open()){
-		    cout << "open file error!" << endl;
-		    return 0;
+	/*Enter and determine whether it is stopword, and perform root processing at the same time*/
+	string str; 
+	double rate;
+	cout<<"Please input your word and rate:"<<endl;
+	cin>>str>>rate;
+	string tmpl;
+	ifstream stopword("../StopWord.txt");
+	int flag=1;
+	while(getline(stopword,tmpl)){
+	    if(str.compare(tmpl)==0) flag=0;
+	}
+	if(flag==0){
+		cout<<"This is a stop word!"<<endl;
+		return 0;
+	}
+	str=Word_Stem(str);
+	
+	/*Check whether the local data has been queried*/
+	string Exist_file="../data/";
+	Exist_file+=str;
+	Exist_file+="_data";
+	Exist_file+=".txt";
+	ifstream check_name(Exist_file);
+	if (!check_name.is_open()){/*If there is no corresponding data locally, start querying the database*/
+		int ifsee=0; 
+		for(int i=0;i<txt_name.size();i++){
+		    string now_txt;
+		    now_txt="../docspider/";
+		    now_txt+=txt_name[i];
+		    now_txt+=".txt";
+		    ifstream file_name(now_txt);
+		    if (!file_name.is_open()){
+		        cout << "open file error!" << endl;
+		        return 0;
+	        }
+	        string tmpn;
+	        int line=0;
+	        while(getline(file_name,tmpn)){/*Read by line, chunk by string*/
+	        	line++;
+	        	tmpn=Word_Stem(tmpn);/*Root processing for each word*/
+	        	int index=tmpn.find(str);
+	    	    if(index!=string::npos){
+	    		    SearchEngine[str].push_back(make_pair(i,line));/*push into the data structure of the search results*/
+	    		    Frequency[i][str]++;/*Frequency plus one*/
+	    		    ifsee=1;
+			    }
+		    }
 	    }
-	    string str;
-	    
-	    while(getline(file_name,str)){
-	    	istringstream iss(str);
-	    	string word;
-	    	while(getline(iss,word,' ')){
-	    		int flag=1;/*Stop word ?*/
-	    		word=Word_Stem(word);
-	    		int size=word.size();
-	    		if(word[size-1]>'z'||word[size-1]<'a') word[size-1]=0;//Handle last symbol (handle two bits) 
-	    		if(word[size-2]>'z'||word[size-2]<'a') word[size-2]=0;
-	    		ifstream stopword("StopWord.txt");
-	    		string tmpl;
-	    		while(getline(stopword,tmpl)){
-	    			if(word.compare(tmpl)==0) flag=0;
+    	map<string,int> BookName;
+		for (const auto& entry : SearchEngine) {/*Write to local txt file*/
+			ofstream ofs; 
+			string NewTxt="../data/";
+			NewTxt+=str;
+			NewTxt+="_data.txt";
+		    ofs.open(NewTxt,ios::out);
+		    string w=entry.first;
+		    ofs<<entry.first;
+		    for (const auto& subEntry : entry.second) {
+		    	string book=txt_name[subEntry.first];
+		    	if(BookName[book]==0){
+		    		ofs<<endl;
+		    		BookName[book]=1;
+		    		ofs<<book<<" "<<Frequency[subEntry.first][w]<<endl;
 				}
-				if(flag==1){
-					if(words[word]==0){
-						words[word]=1;
-						ofstream ofs;
-	                    ofs.open("Word.txt",ios::app);
-	                    ofs<<word<<endl;
-                        ofs.close();
-                        cout<<word<<endl;
-					}
-				}	
+	            ofs<<subEntry.second<<" ";
+		    }
+		    ofs<<endl;
+			BookName.clear();
+	        ofs.close();
+    	}
+    	priority_queue<int> q;//*Use the small root heap to find the k-th largest element, k=rate*total number of articles*/
+    	for(int i=0;i<txt_name.size();i++){
+    		q.push(Frequency[i][str]);
+		}
+		for(int i=0;i<rate*txt_name.size();i++){
+			q.pop();
+		}
+		int boundary=q.top();
+		int sta=0;
+	    for (const auto& entry : SearchEngine) {/*Output at terminal*/
+		    string w=entry.first;
+//		    cout<<entry.first<<endl;
+		    for(int i=0;i<txt_name.size();i++){
+		    	if(Frequency[i][w]>=boundary) {
+		    		sta++;
+		    	    cout<<sta<<"."<<"Title:"<<"\""<<txt_name[i]<<"\" ,Number of occurrences:"<<Frequency[i][w]<<endl<<"The first appearance is in the ";
+					for (const auto& subEntry : entry.second) {
+						if(subEntry.first==i){
+						    cout<<subEntry.second<<" line"<<endl;
+	                        break;	
+						} 
+		            }	
+				}
 			}
-//	    	int index=str.find(x);
-//	    	if(index!=string::npos){
-//	    	    cout<<str<<endl;	
-//			}
+			BookName.clear();
+	    }
+	    if(ifsee==0) cout<<"The word does not appear!"<<endl; 
+	}
+	else{/*Existing local data, read local data directly*/
+	    priority_queue<int> q;/*Use the small root heap to find the k-th largest element, k=rate*total number of articles*/
+		int total=0;	
+		string tmpn;
+		getline(check_name,tmpn);
+		while(getline(check_name,tmpn)){
+			int k=atoi(&tmpn[0]);
+			if(k==0) {
+				total++;
+				int sum,i;
+				sum=0;
+				i=tmpn.size()-1;
+				string temp=tmpn;
+				while(i>0){
+					if(tmpn[i]==' ') break;
+					i--;
+				}
+				temp=temp.substr(i+1, temp.length()-i);
+				int fre=atoi(&temp[0]);
+				q.push(fre);
+			}
+		} 
+		for(int i=0;i<rate*total;i++){
+			q.pop();
+		}
+		int boundary=q.top();
+		int sta=0;
+		ifstream check2_name(Exist_file);
+		getline(check2_name,tmpn);
+		while(getline(check2_name,tmpn)){/*to output*/
+			int k=atoi(&tmpn[0]);
+			if(k==0) {
+				total++;
+				int sum,i;
+				sum=0;
+				i=tmpn.size()-1;
+				string temp=tmpn;
+				while(i>0){
+					if(tmpn[i]==' ') break;
+					i--;
+				}
+				temp=temp.substr(i+1, temp.length()-i);
+				tmpn=tmpn.substr(0,i);
+				int fre=atoi(&temp[0]);
+				if(fre>boundary) {
+					sta++;
+				    cout<<sta<<"."<<"Title:"<<"\""<<tmpn<<"\" ,Number of occurrences:"<<temp<<""<<endl;
+					cout<<"The first appearance is in:";
+				    string line;
+				    getline(check2_name,line,' ');
+				    cout<<line<<" line"<<endl;	
+				}
+			}
 		}
 	}
-//	ofstream ofs;
-//	ofs.open("data.txt",ios::app);
-//    ofs<<"211"<<endl;
-//    ofs.close();
-	return 0;
-//	map<string,vector<pair<string,int>>> SearchEngine;
-//    SearchEngine["key1"].push_back(make_pair("subkey1",10));
-//    for (const auto& entry : SearchEngine) {
-//        std::cout << "Key: " << entry.first << std::endl;
-//        string tmp=entry.first;
-//        std::cout << "Values: ";
-//        for (const auto& subEntry : entry.second) {
-//            std::cout << "(" << subEntry.first << ", " << subEntry.second << ") ";
-//        }
-//        std::cout << std::endl;
-//    }
+	return 0; 
 }
 string Word_Stem(string x){
 	transform(x.begin(),x.end(),x.begin(),::tolower);
